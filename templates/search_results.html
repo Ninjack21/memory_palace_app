@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Memory Palace - Search Results</title>
+</head>
+
+<body>
+    <h1>Search Results</h1>
+    <ul>
+        {% for image in images %}
+        <li>{{ image.filename }} - {{ image.description }}</li>
+        {% endfor %}
+    </ul>
+    <a href

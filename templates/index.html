@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Memory Palace</title>
+</head>
+
+<body>
+    <h1>Memory Palace</h1>
+    <form action="{{ url_for('add_image') }}" method="POST">
+        <label for="filename">Filename:</label>
+        <input type="text" name="filename" required>
+        <br>
+        <label for="description">Description:</label>
+        <input type="text" name="description" required>
+        <br>
+        <button type="submit">Add Image</button>
+    </form>
+    <hr>
+    <h2>Images</h2>
+    <ul>
+        {% for image in images %}
+        <li>{{ image.filename }} - {{ image.description }}</li>
+        {% endfor %}
+    </ul>
+    <hr>
+    <h2>Search</h2>
+    <form action="{{ url_for('search_image') }}" method="GET">
+        <label for="keyword">Keyword:</label>
+        <input type="text" name="keyword" required>
+        <button type="submit">Search</button>
+    </form>
+</body>
+
+</html>
