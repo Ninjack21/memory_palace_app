@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Filler Words</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <h1>Filler Words</h1>
+    <ul>
+        {% for filler_word in filler_words %}
+        <li>
+            <form action="{{ url_for('update_filler_word', word_id=filler_word.id
+            ) }}" method="POST">
+                <input type="text" name="word" value="{{ filler_word.word }}">
+                <button type="submit">Update</button>
+            </form>
+            <form action="{{ url_for('delete_filler_word', word_id=filler_word.id
+            ) }}" method="POST">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+
+</html>

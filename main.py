@@ -10,6 +10,7 @@ from flask import (
 from flask_sqlalchemy import SQLAlchemy
 import os
 from werkzeug.utils import secure_filename
+import re
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
@@ -34,6 +35,11 @@ class Image(db.Model):
 
     def __repr__(self):
         return f"<Image {self.filename}>"
+
+
+class FillerWord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String(80), nullable=False)
 
 
 @app.route("/")
@@ -68,11 +74,25 @@ def serve_uploaded_file(filename):
     return send_file(file_path, as_attachment=True)
 
 
-@app.route("/search", methods=["GET"])
-def search_image():
-    keyword = request.args.get("keyword")
-    images = Image.query.filter(Image.description.contains(keyword)).all()
-    return render_template("search_results.html", images=images)
+@app.route("/search", methods=["GET", "POST"])
+def search_image(keywords=None):
+    if request.method == "GET":
+        keywords = request.args.get("keywords")
+        words = re.sub(r"'s", "", keywords.replace(",", " ")).split()
+    elif request.method == "POST":
+        query = request.form["keyword"]
+        words = re.sub(r"'s", "", query.replace(",", "")).split()
+    else:
+        return render_template("index.html")
+
+    filler_words = [filler_word.word for filler_word in FillerWord.query.all()]
+    words = [word for word in words if word not in filler_words]
+
+    results = {}
+    for word in words:
+        results[word] = Image.query.filter(Image.description.contains(word)).all()
+
+    return render_template("search_results.html", images=results)
 
 
 @app.route("/delete/<int:image_id>", methods=["POST"])
@@ -86,6 +106,48 @@ def delete_image(image_id):
 @app.route("/uploads/images/<filename>")
 def uploaded_file(filename):
     return send_from_directory(app.config["UPLOADED_IMAGES_DEST"], filename)
+
+
+@app.route("/add_filler_word", methods=["POST"])
+def add_filler_word():
+    word = request.form["word"]
+    keywords = request.form["keywords"]
+    new_filler_word = FillerWord(word=word)
+    db.session.add(new_filler_word)
+    db.session.commit()
+    return redirect(url_for("search_image", keywords=keywords))
+
+
+@app.route("/update-description/<int:image_id>", methods=["POST"])
+def update_description(image_id):
+    image = Image.query.get_or_404(image_id)
+    new_description = request.form["description"]
+    image.description = new_description
+    db.session.commit()
+    return redirect(url_for("index"))
+
+
+@app.route("/filler_words")
+def filler_words():
+    filler_words = FillerWord.query.all()
+    return render_template("filler_words.html", filler_words=filler_words)
+
+
+@app.route("/update_filler_word/<int:word_id>", methods=["POST"])
+def update_filler_word(word_id):
+    filler_word = FillerWord.query.get_or_404(word_id)
+    new_word = request.form["word"]
+    filler_word.word = new_word
+    db.session.commit()
+    return redirect(url_for("filler_words"))
+
+
+@app.route("/delete_filler_word/<int:word_id>", methods=["POST"])
+def delete_filler_word(word_id):
+    filler_word = FillerWord.query.get_or_404(word_id)
+    db.session.delete(filler_word)
+    db.session.commit()
+    return redirect(url_for("filler_words"))
 
 
 if __name__ == "__main__":
