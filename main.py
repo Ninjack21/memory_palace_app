@@ -78,10 +78,16 @@ def serve_uploaded_file(filename):
 def search_image(keywords=None):
     if request.method == "GET":
         keywords = request.args.get("keywords")
-        words = re.sub(r"'s", "", keywords.replace(",", " ")).split()
+        words = (
+            re.sub(r"'s", "", keywords.replace(",", " ").replace(".", ""))
+            .replace("[fn]", "")
+            .split()
+        )
     elif request.method == "POST":
         query = request.form["keyword"]
-        words = re.sub(r"'s", "", query.replace(",", "")).split()
+        words = re.sub(
+            r"'s", "", query.replace(",", "").replace(".", "").replace("[fn]", "")
+        ).split()
     else:
         return render_template("index.html")
 
