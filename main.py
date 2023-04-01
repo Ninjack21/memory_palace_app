@@ -96,8 +96,17 @@ def search_image(keywords=None):
 
     results = {}
     for word in words:
-        results[word] = Image.query.filter(Image.description.contains(word)).all()
-
+        associated_images = list()
+        image_results = Image.query.filter(Image.description.contains(word)).all()
+        for image_result in image_results:
+            keywords = (
+                image_result.description.replace(" ", "").replace("-", ",").split(",")
+            )
+            descriptions = [keyword.lower() for keyword in keywords]
+            print(f"\n{word.lower()} -- {descriptions}\n")
+            if word.lower() in descriptions:
+                associated_images.append(image_result)
+        results[word] = associated_images
     return render_template("search_results.html", images=results)
 
 

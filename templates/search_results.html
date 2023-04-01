@@ -35,6 +35,7 @@
 </head>
 
 <body>
+    <a href="{{ url_for('index') }}">Back to Home</a>
     <h1>Search Results</h1>
     {% for keyword, associated_images in images.items() %}
     <div class="keyword-section">≈
