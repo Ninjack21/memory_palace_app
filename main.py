@@ -100,7 +100,10 @@ def search_image(keywords=None):
         image_results = Image.query.filter(Image.description.contains(word)).all()
         for image_result in image_results:
             keywords = (
-                image_result.description.replace(" ", "").replace("-", ",").split(",")
+                image_result.description.replace(" ", "")
+                .replace("-", ",")
+                .replace('"', "")
+                .split(",")
             )
             descriptions = [keyword.lower() for keyword in keywords]
             if word.lower() in descriptions:
