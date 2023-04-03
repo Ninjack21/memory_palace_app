@@ -103,7 +103,6 @@ def search_image(keywords=None):
                 image_result.description.replace(" ", "").replace("-", ",").split(",")
             )
             descriptions = [keyword.lower() for keyword in keywords]
-            print(f"\n{word.lower()} -- {descriptions}\n")
             if word.lower() in descriptions:
                 associated_images.append(image_result)
         results[word] = associated_images
