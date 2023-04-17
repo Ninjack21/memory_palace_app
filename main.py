@@ -90,6 +90,10 @@ def search_image(keywords=None):
         )
     elif request.method == "POST":
         query = request.form["keyword"]
+        query = query.lower()
+        query = query.replace('"', "")
+        query = query.replace("“", "")
+        query = query.replace("”", "")
         words = re.sub(
             r"'s",
             "",
